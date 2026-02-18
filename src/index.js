@@ -1,6 +1,6 @@
 import { R2Explorer } from 'r2-explorer';
 
-const explorer = R2Explorer({ readonly: true });
+const explorer = R2Explorer({ readonly: false });
 
 // Define username and password
 const USERNAME = 'admin';
