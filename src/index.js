@@ -3,8 +3,8 @@ import { R2Explorer } from 'r2-explorer';
 const explorer = R2Explorer({ readonly: false });
 
 // Define username and password
-const USERNAME = 'USERNAME';
-const PASSWORD = 'PASSWORD';
+const USERNAME = 'admin';
+const PASSWORD = '123';
 
 export default {
   async fetch(request, env, context) {
