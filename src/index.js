@@ -13,33 +13,27 @@ export default {
 
     const resp = await explorer.fetch(request, env, ctx);
 
-    let html = await resp.text();
+    const contentType = resp.headers.get("content-type") || "";
 
-    // Inject custom colors here
-    html = html.replace(
-      "</head>",
-      `<style>
-        body {
-          background-color: #0f172a !important;
-          color: white !important;
-        }
+    // ✅ Only touch HTML responses
+    if (contentType.includes("text/html")) {
 
-        .navbar, header {
-          background-color: #020617 !important;
-        }
+      let html = await resp.text();
 
-        button {
-          background-color: #2563eb !important;
-          color: white !important;
-          border: none !important;
-        }
+      html = html.replace(
+        "</head>",
+        `<style>
+          body { background-color: black !important; color: white !important; }
+        </style></head>`
+      );
 
-        a {
-          color: #38bdf8 !important;
-        }
-      </style></head>`
-    );
+      return new Response(html, {
+        status: resp.status,
+        headers: resp.headers
+      });
+    }
 
-    return new Response(html, resp);
+    // ✅ For files / JSON / streams → return untouched
+    return resp;
   }
 };
