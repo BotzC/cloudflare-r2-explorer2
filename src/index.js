@@ -1,40 +1,45 @@
 import { R2Explorer } from 'r2-explorer';
 
-const explorer = R2Explorer({ readonly: false });
-
-// Define username and password
-const USERNAME = 'admin';
-const PASSWORD = '123';
+const explorer = R2Explorer({ 
+  readonly: false,
+  basicAuth: [{
+    username: 'phadmin',
+    password: 'phadmin'
+  }]
+});
 
 export default {
-  async fetch(request, env, context) {
-    // Check if the request has Authorization header
-    const authHeader = request.headers.get('Authorization');
-    if (!authHeader || !authHeader.startsWith('Basic ')) {
-      // If the request does not have the Authorization header, return a 401 Unauthorized response
-      return new Response(null, {
-        status: 401,
-        headers: {
-          'WWW-Authenticate': 'Basic realm="Restricted Area"'
+  async fetch(request, env, ctx) {
+
+    const resp = await explorer.fetch(request, env, ctx);
+
+    let html = await resp.text();
+
+    // Inject custom colors here
+    html = html.replace(
+      "</head>",
+      `<style>
+        body {
+          background-color: #0f172a !important;
+          color: white !important;
         }
-      });
-    }
 
-    // Decode the Authorization header and extract username and password
-    const [username, password] = atob(authHeader.slice(6)).split(':');
-
-    // Verify the username and password
-    if (username !== USERNAME || password !== PASSWORD) {
-      // If the username and password do not match, return a 401 Unauthorized response
-      return new Response(null, {
-        status: 401,
-        headers: {
-          'WWW-Authenticate': 'Basic realm="Restricted Area"'
+        .navbar, header {
+          background-color: #020617 !important;
         }
-      });
-    }
 
-    // If the username and password are correct, proceed with the request
-    return explorer(request, env, context);
+        button {
+          background-color: #2563eb !important;
+          color: white !important;
+          border: none !important;
+        }
+
+        a {
+          color: #38bdf8 !important;
+        }
+      </style></head>`
+    );
+
+    return new Response(html, resp);
   }
 };
