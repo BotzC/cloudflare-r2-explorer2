@@ -1,11 +1,10 @@
-import { R2Explorer } from 'r2-explorer';
+import { R2Explorer } from "r2-explorer";
 
-const explorer = R2Explorer({ 
+const explorer = R2Explorer({
   readonly: false,
-  basicAuth: [{
-    username: 'phadmin',
-    password: 'phadmin'
-  }]
+  basicAuth: [
+    { username: "phadmin", password: "phadmin" }
+  ]
 });
 
 export default {
@@ -15,15 +14,21 @@ export default {
 
     const contentType = resp.headers.get("content-type") || "";
 
-    // ✅ Only touch HTML responses
+    // ✅ Only modify HTML
     if (contentType.includes("text/html")) {
 
-      let html = await resp.text();
+      // Clone response BEFORE reading
+      const cloned = resp.clone();
+
+      let html = await cloned.text();
 
       html = html.replace(
         "</head>",
         `<style>
-          body { background-color: black !important; color: white !important; }
+          body {
+            background-color: black !important;
+            color: white !important;
+          }
         </style></head>`
       );
 
@@ -33,7 +38,7 @@ export default {
       });
     }
 
-    // ✅ For files / JSON / streams → return untouched
+    // ✅ Return everything else untouched
     return resp;
   }
 };
